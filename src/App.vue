@@ -27,7 +27,6 @@ export default {
       description: 'Taubyte collection used for verifying grandfather status.',
       price: 0.00,
       time: 2,
-      verification: 0,
     }
   })
 }

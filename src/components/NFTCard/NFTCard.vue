@@ -1,5 +1,5 @@
 <template>
-  <div :key="verification" class="card" >
+  <div class="card" >
     <div class="card__product-img">
       <img 
         class="card__img"
@@ -74,13 +74,10 @@ export default {
       type: String,
       default: '',
     },
-    verification: {
-      type: Number,
-      default: 0,
-    },
   },
   data(){
     return{
+      verification:0,
       provider:new ethers.providers.Web3Provider(window.ethereum)
     }
   },
