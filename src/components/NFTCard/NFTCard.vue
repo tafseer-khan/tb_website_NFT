@@ -1,5 +1,5 @@
 <template>
-  <div class="card" >
+  <div :key="verification" class="card" >
     <div class="card__product-img">
       <img 
         class="card__img"
@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div :key="verification" class="card__footer">
+    <div class="card__footer">
           <b-button @click="requestPermission" type="button" class="btn btn-secondary" size="lg">Verify Ownership</b-button>
           <span v-if="verification == 0">Unverified</span>
           <span v-if="verification == 1">Holder owns this NFT</span>
@@ -92,8 +92,10 @@ export default {
       let res = await fetch(`https://nft.tafhub.org/verify?&address=${walletAddress}`)
       if (res.status == 200){
         this.verification = 1
+        console.log(this.verification)
       }else{
         this.verification = 2
+        console.log(this.verification)
       }
       console.log(res)
     }
