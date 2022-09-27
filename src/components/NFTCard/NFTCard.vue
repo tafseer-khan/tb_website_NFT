@@ -89,7 +89,12 @@ export default {
       await this.provider.send("eth_requestAccounts",[])
       let walletAddress =await this.provider.getSigner().getAddress()
       console.log(walletAddress)
-      let res = await fetch(`https://${location.hostname}/verify&address=${walletAddress}`)
+      let res = await fetch(`https://nft.tafhub.org/verify?&address=${walletAddress}`)
+      if (res.status == 200){
+        this.verification = 1
+      }else{
+        this.verification = 2
+      }
       console.log(res)
     }
   },
