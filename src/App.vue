@@ -32,7 +32,6 @@ export default {
   })
 }
 </script>
-<!-- something -->
 <style lang="scss">
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');

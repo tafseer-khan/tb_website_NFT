@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" >
     <div class="card__product-img">
       <img 
         class="card__img"
@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="card__footer">
+    <div :key="verification" class="card__footer">
           <b-button @click="requestPermission" type="button" class="btn btn-secondary" size="lg">Verify Ownership</b-button>
           <span v-if="verification == 0">Unverified</span>
           <span v-if="verification == 1">Holder owns this NFT</span>
