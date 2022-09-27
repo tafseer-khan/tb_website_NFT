@@ -27,9 +27,9 @@
     </div>
     <div class="card__footer">
           <b-button @click="requestPermission" type="button" class="btn btn-secondary" size="lg">Verify Ownership</b-button>
-          <span v-if="verification == 0">Unverified</span>
-          <span v-if="verification == 1">Holder owns this NFT</span>
-          <span v-if="verification == 2">Holder does not own this NFT</span>
+          <span style="color:grey" v-if="verification == 0">Unverified</span>
+          <span style="color:green" v-if="verification == 1">You own this NFT</span>
+          <span style="color:red" v-if="verification == 2">You do not own this NFT</span>
     </div>
   </div>
 </template>
