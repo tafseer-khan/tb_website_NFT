@@ -1,117 +1,205 @@
-<template>
-  <div class="card" >
-    <div class="card__product-img">
-      <img 
-        class="card__img"
-        alt="product-image" 
-        :src="require('@/static/images/' + img)"
-      >
-    </div>
-    <div class="card__content">
-      <p class="card__name">{{ name }} <span v-if="id">#{{ id }}</span></p>
-      <p class="card__description" v-if="description">{{ description }}</p>
-      <div class="card__content-bottom">
-        <div class="card__price">
-          <div class="icon">
-            <img src="@/assets/images/nft-card/icon-ethereum.svg" alt="">
-          </div>
-          <p>{{ price }} ETH</p>
-        </div>
-        <div v-if="time" class="card__time">
-          <div class="icon">
-            <img src="@/assets/images/nft-card/icon-clock.svg" alt="">
-          </div>
-          <p>Does not expire</p>
-        </div>
-      </div>
-    </div>
-    <div class="card__footer">
-          <b-button @click="requestPermission" type="button" class="btn btn-secondary" size="lg">Verify Ownership</b-button>
-          <span style="color:grey" v-if="verification == 0">Unverified</span>
-          <span style="color:green" v-if="verification == 1">You own this NFT</span>
-          <span style="color:red" v-if="verification == 2">You do not own this NFT</span>
-    </div>
-  </div>
-</template>
-
 <script>
-import { ethers } from "ethers"
+import { ethers } from "ethers";
+
 
 export default {
   props: {
     img: {
       type: String,
-      default: '',
-      required: true
+      default: "",
+      required: true,
     },
     name: {
       type: String,
-      default: '',
-      required: true
+      default: "",
+      required: true,
     },
     description: {
       type: String,
-      default: ''
+      default: "",
     },
     id: {
       type: [String, Number],
-      default: null
+      default: null,
     },
     price: {
       type: Number,
       default: 0,
-      required: true
+      required: true,
     },
     time: {
       type: [String, Number],
-      default: ''
+      default: "",
     },
     autor: {
       type: String,
-      default: ''
+      default: "",
     },
     avatar: {
       type: String,
-      default: '',
+      default: "",
     },
   },
-  data(){
-    return{
-      verification:0,
-      provider:new ethers.providers.Web3Provider(window.ethereum)
-    }
+  data() {
+    return {
+      verificationMap: [
+        {
+          style: "color: gray",
+          status: "Unverified",
+        },
+        {
+          style: "color: green",
+          status: "You own this NFT",
+        },
+        {
+          style: "color: red",
+          status: "You do not own this NFT",
+        },
+        {
+          style: "color: red",
+          status: "Address cannot be empty",
+        },
+      ],
+      status : null,
+      style: null,
+      // verification: this.verificationMap[0],
+      walletAddress: "",
+    };
   },
-  methods:{
-    async requestPermission(){
-      await this.provider.send("eth_requestAccounts",[])
-      let walletAddress =await this.provider.getSigner().getAddress()
-      console.log(walletAddress)
-      let res = await fetch(`https://nft.tafhub.org/verify?&address=${walletAddress}`)
-      if (res.status == 200){
-        this.verification = 1
-        console.log(this.verification)
-      }else{
-        this.verification = 2
-        console.log(this.verification)
+  beforeMount(){
+    this.update(0)
+  },
+  methods: {
+    async verify() {
+      if (this.walletAddress == "") {
+        this.update(3)
+        return;
       }
-      console.log(res)
-    }
+      let res = await fetch(
+        `https://nft.tafhub.org/verify?&address=${this.walletAddress}`
+      ).catch(()=>{
+        this.update(2)
+        console.log(this.status)
+      }
+        )
+      if (res.status == 200) {
+        this.update(1)
+        console.log(this.status)
+      } else {
+        this.update(2)
+        console.log(this.status)
+      }
+    },
+    update(x){
+      this.status = this.verificationMap[x]
+      console.log(this.status)
+    },
+    async inject() {
+      let provider;
+      try {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        this.walletAddress = await provider.getSigner().getAddress();
+        console.log(this.walletAddress)
+      } catch (e) {
+        console.log("metamask is not installed", e);
+      }
+
+      console.log(this.walletAddress);
+    },
   },
-}
+};
 </script>
+
+<template>
+  <div class="card">
+    <div class="card__product-img">
+      <img
+        class="card__img"
+        alt="product-image"
+        :src="require('@/static/images/' + img)"
+      />
+    </div>
+    <div class="card__content">
+      <p class="card__name">
+        {{ name }} <span v-if="id">#{{ id }}</span>
+      </p>
+      <p class="card__description" v-if="description">{{ description }}</p>
+      <div class="card__content-bottom">
+        <div class="card__price">
+          <div class="icon">
+            <img src="@/assets/images/nft-card/icon-ethereum.svg" alt="" />
+          </div>
+          <p>{{ price }} ETH</p>
+        </div>
+        <div v-if="time" class="card__time">
+          <div class="icon">
+            <img src="@/assets/images/nft-card/icon-clock.svg" alt="" />
+          </div>
+          <p>Does not expire</p>
+        </div>
+      </div>
+    </div>
+    <div class="card__footer" style="height: 6rem">
+      <b-row style="width: 100%; margin: 0">
+        <b-col cols="3">
+          <b-button
+            @click="verify"
+            type="button"
+            class="btn btn-secondary"
+            size="lg"
+            style="height: 100%"
+            >Verify
+          </b-button>
+        </b-col>
+        <b-col cols="9">
+          <b-input-group class="verify">
+            <template #append>
+              <b-input-group-text
+                @click="inject"
+                v-b-tooltip.hover
+                title="Inject address via metamask"
+              >
+                <img
+                  src="https://img.icons8.com/color/20/000000/metamask-logo.png"
+                />
+              </b-input-group-text>
+            </template>
+            <b-form-input
+              placeholder="Address"
+              type="text"
+              size="lg"
+              :value="walletAddress"
+              v-model="walletAddress"
+            >
+            </b-form-input>
+          </b-input-group>
+        </b-col>
+      </b-row>
+    </div>
+    <div class="card__footer" style="height: 2rem; margin-top: 2rem">
+      <span :style="status.style">{{ status.status }}</span>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .icon {
   display: flex;
 }
+
+.verify {
+  height: 100%;
+}
+
 .card {
-  background-color: #15263F;
-  color: #8BACD9;
+  background-color: #15263f;
+  color: #8bacd9;
   border-radius: 16px;
   padding: 24px;
   width: 327px;
   font-size: 1.5rem;
-  box-shadow: 0 25px 50px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 25px 50px 0 rgba(0, 0, 0, 0.1);
   @media screen and (min-width: 768px) {
     font-size: 1.6rem;
     width: 350px;
@@ -155,14 +243,14 @@ export default {
         font-weight: 600;
       }
       .card__price {
-        color: #00FFF8;
+        color: #00fff8;
       }
     }
   }
   .card__footer {
     display: flex;
     align-items: center;
-    border-top: 1px solid #2E405A;
+    border-top: 1px solid #2e405a;
     gap: 16px;
     padding-top: 16px;
     .card__avatar {
@@ -179,7 +267,7 @@ export default {
 //Transition
 .fade-enter-active,
 .fade-leave-active {
-    transition: 0.25s ease-out;
+  transition: 0.25s ease-out;
 }
 .fade-leave-to,
 .fade-enter-from {
