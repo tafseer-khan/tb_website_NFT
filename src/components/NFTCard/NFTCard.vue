@@ -59,6 +59,10 @@ export default {
           style: "color: red",
           status: "Address cannot be empty",
         },
+        {
+          style: "color: red",
+          status: "Metamask not installed",
+        },
       ],
       status : null,
       style: null,
@@ -79,15 +83,12 @@ export default {
         `https://nft.tafhub.org/verify?&address=${this.walletAddress}`
       ).catch(()=>{
         this.update(2)
-        console.log(this.status)
       }
         )
       if (res.status == 200) {
         this.update(1)
-        console.log(this.status)
       } else {
         this.update(2)
-        console.log(this.status)
       }
     },
     update(x){
@@ -102,6 +103,7 @@ export default {
         this.walletAddress = await provider.getSigner().getAddress();
         console.log(this.walletAddress)
       } catch (e) {
+        this.update(4)
         console.log("metamask is not installed", e);
       }
 
